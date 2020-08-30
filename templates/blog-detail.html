@@ -1,0 +1,243 @@
+<!doctype html>
+{% extends 'base.html' %}
+{% load crispy_forms_tags %} 
+{% load static %}
+{% block navbar %}
+{% include 'navbar.html' %}
+{% endblock %}
+
+{% block blog %}
+<main class="mt-5 pt-5">
+	<h1 class="text-center">{{blog.title}}</h1>
+  <div class="container">
+    <section class="mt-4">
+      <div class="row">
+        <div class="col-md-8 mb-4">
+
+          <div class="card mb-4 wow fadeIn">
+            {% if blog.thumbnail %}
+            <img class="img-fluid " src="{{ blog.thumbnail.url }}" alt="Sample image" >
+            {% else %}
+            <a>
+              <div class="mask rgba-white-slight"></div>
+            </a>
+            {% endif %}
+
+          </div>
+          <div class="card mb-4 wow fadeIn">
+
+            <div class="card-body">
+             <a href="{% url 'blogs'  %}" class="float-left"><i class="fas fa-undo"></i></a>
+             <div class="float-right"> {% if request.user == blog.user %}  <a href="{% url 'blog-update' blog.pk %}" class="pr-2"></i><i class="fas fa-edit fa-lg "></i></a><a href="{% url 'delete-blog' blog.pk %}"> <i class="fas fa-trash fa-lg"></i></a>
+             {% endif %}</div>
+             <h3 class="text-center pb-2 pt-3">{{blog.title}}</h3>
+             <p class=" my-4">{{blog.content | safe}}</p>
+             {{blog.likes.count}}  Like{{ blog.likes.count|pluralize }}
+             {% if request.user.is_authenticated %}
+             <form action="{% url 'like_post' %}" method="POST" class="mb-2">
+              {% csrf_token %}
+              {% if is_liked %}
+              <button type="submit" name="post_id" value="{{ blog.id }}" class="btn text-info"><i class="far fa-thumbs-down text-info"></i></i> Dislike
+               
+              </button>
+              {% else %}
+              <button type="submit" name="post_id" value="{{ blog.id }}" class="btn text-info"><i class="text-info far fa-thumbs-up"></i>
+               Like
+             </button>
+             {% endif %}
+
+           </form>
+           {% endif %}
+           <br/><strong>Category</strong> - {{blog.categories.title}}
+           {% if blog.tags.all %}
+           <strong>Tags</strong>:{% for tag in blog.tags.all %}
+           <a href="{% url 'tagged' tag.slug %}" class="mr-1 badge badge-info">#{{ tag }}</a>
+           {% endfor %}
+           {% endif %}
+         </div>
+
+       </div>
+       <div class="card mb-4 wow fadeIn">
+
+        <div class="card-header font-weight-bold">
+          <span>About author</span>
+        </div>
+
+        <div class="card-body">
+
+          <div class="media d-block d-md-flex mt-3">
+            {% if blog.user.userprofile.profilepic %}
+            <img class="d-flex mb-3 mx-auto z-depth-1" src="{{blog.user.userprofile.profilepic.url}}"
+            alt="no placeholder image" style="width: 100px;">
+            {% else %}
+            <img class="d-flex mb-3 mx-auto z-depth-1" src="https://via.placeholder.com/150"
+            alt="Generic placeholder image" style="width: 100px;">
+            {% endif %}
+            
+            <div class="media-body text-center text-md-left ml-md-3 ml-0">
+              <h5 class="mt-0 font-weight-bold">{{blog.user}}
+              </h5>
+              {% if blog.user.userprofile.bio %}
+              {{blog.user.userprofile.bio}}
+              {% endif %}
+              <br/>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="card card-comments mb-3 wow fadeIn">
+        <div class="card-header font-weight-bold">{{blog.comments.count}}  comment{{ blog.comments.count|pluralize }}</div>
+
+        <div class="card-body">
+         {% for cm in comments %}
+         <div class="media d-block d-md-flex mt-4">
+          <img class="d-flex mb-3 mx-auto " src="https://mdbootstrap.com/img/Photos/Avatars/img (20).jpg" alt="Generic placeholder image"  width="80" height="70">
+          <div class="media-body text-center text-md-left ml-md-3 ml-0">
+            <h5 class="mt-0 font-weight-bold">{{cm.0.user.username}}
+             <div class="meta">{{cm.0.time}}</div>
+           </h5>
+           {{cm.0.comm}}
+           {% if user.is_authenticated %}
+           <p id="{{cm.0.id}}"><button onclick="ReplyForm('{{cm.0.id}}')" class="reply btn btn-info">Reply</button></p>
+           {% endif %}
+           <!-- Quick Reply -->
+           {% for subc in cm.1 %}
+           <div class="media d-block d-md-flex mt-3">
+            <img class="d-flex mb-3 mx-auto " src="https://mdbootstrap.com/img/Photos/Avatars/img (20).jpg"
+            alt="Generic placeholder image"  width="80" height="70">
+            <div class="media-body text-center text-md-left ml-md-3 ml-0">
+              <h5 class="mt-0 font-weight-bold">{{subc.user.username}}
+               <div class="meta">{{subc.time}}</div>
+             </h5>
+             {{subc.comm}}
+           </div>
+         </div>
+         {% endfor %}
+       </div>
+     </div>
+     {% endfor %}
+   </div>
+ </div>
+ <!--/.Comments-->
+
+ <!--Reply-->
+ 
+ <div class="card mb-3 wow fadeIn">
+  <div class="card-header font-weight-bold">Leave a reply</div>
+  <div class="card-body">
+    {% if user.is_authenticated %}
+    <!-- Default form reply -->
+    <form method="post">
+     {% csrf_token %}
+     <!-- Comment -->
+     <div class="form-group">
+      <label for="replyFormComment">Your comment</label>
+      <textarea class="form-control" id="replyFormComment" rows="5" name="comm"></textarea>
+    </div>
+
+
+    <div class="text-center mt-4">
+      <button class="btn btn-info btn-md" type="submit">Post</button>
+    </div>
+  </form>
+  <!-- Default form reply -->
+  
+  
+  <script type="text/javascript">
+    function ReplyForm(id) {
+      let elm = `<form method="POST" class="p-5 bg-light">
+      {% csrf_token %}
+      <div class="form-group">
+      <input type='text' value='${id}' name = 'comm_id' style="display:none;" readonly/>
+      <label for="message">Comment</label>
+      <textarea name="comm" id="message" cols="30" rows="3" class="form-control"></textarea>
+      </div>
+      <div class="form-group">
+      <input type="submit" value="Post Comment" class="btn btn-primary py-3">
+      </div>
+      
+      </form>`;
+      document.getElementById(id).innerHTML = elm;
+    }
+  </script>
+  {% else %}
+  <div class="text-center">
+   <p class="h4">Please login to add comment..</p>
+   <button class="btn btn-info"><a href="{% url 'login' %}" class="text-white">Sign In</a></button>
+   <button class="btn btn-info"><a href="{% url 'signup' %}" class="text-white">Sign Up</a></button>
+ </div>
+ {% endif %}
+</div>
+</div>
+
+<!--/.Reply-->
+
+</div>
+<div class="col-md-4 mb-4">
+
+  <div class="card mb-4 text-center wow fadeIn">
+
+    <div class="card-header">Similar Blogs</div>
+
+    <!--Card content-->
+    <div class="card-body">
+      {% for post in similar_posts %}
+      <p class="h6">
+        <a href="{% url 'blog-detail' post.pk %}">{{ post.title }}</a>
+      </p>
+      {% empty %}
+      There are no similar blogs yet.
+      {% endfor %}
+      
+
+    </div>
+
+  </div>
+  <div class="card mb-4 text-center wow fadeIn">
+
+    <div class="card-header">Popular Blogs</div>
+
+    <!--Card content-->
+    <div class="card-body">
+     <ul class="list-unstyled">
+      {% for post in pop_post %}
+      <li class="media mt-1">
+       {% if post.thumbnail %}
+       <img class="d-flex mr-3 mb-2" src="{{post.thumbnail.url}}" alt="Generic placeholder image"
+       widht="70" height="50">
+       {% else %}
+       <img class="d-flex mr-3 mb-2" src="https://mdbootstrap.com/img/Photos/Others/placeholder7.jpg" alt="placeholder image">
+       {% endif %}
+       <div class="media-body">
+        <a href="{% url 'blog-detail' post.pk %}">
+          <h5 class="mt-0 mb-1 font-weight-bold">{{post.title}}</h5>
+        </a>
+        <small> Category: <a href=""> {{post.categories.title}}</a></small>
+        
+        
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+</main>
+
+{% endblock %}
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock %} 

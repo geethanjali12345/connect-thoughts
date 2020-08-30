@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Courgette&family=Roboto+Condensed:ital,wght@1,300&display=swap');
+
+
+.title{
+  font-family: 'Courgette', cursive;
+  font-size: 38px;
+}
+
+.sub-title{
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 24px;
+}
+
+.navbar-brand{
+  font-family: 'Courgette', cursive;
+
+}

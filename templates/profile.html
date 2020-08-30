@@ -1,0 +1,92 @@
+<!doctype html>
+{% extends 'base.html' %}
+{% load static %}
+{% block navbar %}
+{% include 'navbar.html' %}
+{% endblock %}
+
+{% block blog %}
+<section class="section pb-3 text-center mt-5">
+
+ <div class="row">
+
+
+  <!--Grid column-->
+  <div class="offset-lg-1 col-lg-3 col-md-12 mb-4">
+
+    <!--Card-->
+    <div class="card testimonial-card">
+
+      <!--Background color-->
+      <div class="card-up blue lighten-2">
+      </div>
+
+      <!--Avatar-->
+      <div class="avatar mx-auto white mt-2">
+        {% if user.userprofile.profilepic %}
+        <img class=" rounded-circle  " src="{{ user.userprofile.profilepic.url }}" data-holder-rendered="true" width="150" height="120">
+        {% else %}
+        <img class="img-responsive" src="#" alt="profile">
+        {% endif %}
+      </div>
+
+      <div class="card-body">
+        <h4 class="card-title mt-1">Username: {{user}}</h4>
+        <hr>
+        <p>Email: {{user.email}}</p>
+        {% if user.userprofile %}
+        <a href="{% url 'edit-profile' %}" class="btn btn-info">Edit Profile</a>
+        {% else %}
+        <a href="{% url 'add-profile' %}" class="btn btn-info">Add Profile</a>
+        {% endif %}
+      </div>
+
+    </div>
+    <!--Card-->
+
+  </div>
+  <!--Grid column-->
+
+  <!--Grid column-->
+  <div class="col-lg-6 col-md-12 mb-4">
+
+    <!--Card-->
+    <div class="card testimonial-card">
+
+      <!--Background color-->
+      <div class="card-up deep-purple lighten-2"></div>
+      <div class="card-header font-weight-bold h4">My Profile</div>
+      <div class="card-body text-justify pl-5 ">
+        {% if user.userprofile.first_name %}
+        <p class="pl-5"><strong>First Name:</strong> {{ user.userprofile.first_name}}<p/>
+          {% endif %}
+          {% if user.userprofile.last_name %}
+          <p class="pl-5"><strong>Last Name:</strong>  {{ user.userprofile.last_name|lower|capfirst}}</p>
+          {% endif %}
+          {% if user.userprofile.birthday %}
+          <p class="pl-5"> <strong>Date of Birth:</strong>  {{ user.userprofile.birthday|date:"F d, Y"}}</p>
+          {% endif %}
+          {% if user.userprofile.hobby %}
+          <p class="pl-5"><strong>Hobby:</strong>{{ user.userprofile.hobby}}</p>
+          {% endif %}
+          {% if user.userprofile.bio %}
+          <p class="pl-5"><strong>Bio: </strong>  {{ user.userprofile.bio}}</p>
+          {% endif %}
+          {% if user.userprofile.location %}
+          <p class="pl-5"><strong>Location:</strong>  {{ user.userprofile.location}}</p>
+          {% endif %}
+          {% if user.userprofile.country %}
+          <p class="pl-5"><strong>Country:</strong> {{ user.userprofile.country}}</p>
+          {% endif %}
+
+        </div>
+      </div>
+      <!--Card-->
+
+    </div>
+    <!--Grid column-->
+
+  </div>
+
+</section>
+{% endblock %}
